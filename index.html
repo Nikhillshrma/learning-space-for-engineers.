@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENGIVERSE // The Arena for Engineers</title>
+
+<!-- ============ FONTS & ICONS ============ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+
+<style>
+/* ================================================================
+   🎨 THEME TOKENS — tweak all colors here
+   ================================================================ */
+:root{
+  --bg-deep:      #0a0a0f;   /* page background */
+  --bg-panel:     #12121c;   /* card base */
+  --glass:        rgba(255,255,255,0.04);
+  --glass-strong: rgba(255,255,255,0.08);
+  --stroke:       rgba(255,255,255,0.10);
+
+  --neon-purple:  #a855f7;
+  --neon-cyan:    #22d3ee;
+  --neon-green:   #4ade80;
+  --neon-pink:    #f472b6;
+  --neon-amber:   #fbbf24;
+
+  --txt-hi:  #f4f4f7;
+  --txt-mid: #9ca0b0;
+  --txt-low: #5c6070;
+
+  --font-main: 'Space Grotesk', sans-serif;
+  --font-code: 'JetBrains Mono', monospace;
+
+  --radius: 20px;
+  --ease-out: cubic-bezier(.22,1,.36,1);
+  --ease-spring: cubic-bezier(.34,1.56,.64,1);
+}
+
+/* ================================================================
+   BASE
+   ================================================================ */
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg-deep);
+  color:var(--txt-hi);
+  font-family:var(--font-main);
+  overflow-x:hidden;
+  min-height:100vh;
+}
+::selection{background:var(--neon-purple);color:#fff}
+
+/* custom scrollbar */
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:var(--bg-deep)}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--neon-purple),var(--neon-cyan));border-radius:99px}
+
+/* ================================================================
+   🌌 ANIMATED BACKGROUND — orbs + grid + particles(canvas)
+   ================================================================ */
+.bg-scene{position:fixed;inset:0;z-index:-2;overflow:hidden}
+.orb{
+  position:absolute;border-radius:50%;
+  filter:blur(110px);opacity:.35;
+  animation:orbFloat 22s ease-in-out infinite alternate;
+}
+.orb-1{width:520px;height:520px;background:var(--neon-purple);top:-140px;left:-120px}
+.orb-2{width:460px;height:460px;background:var(--neon-cyan);bottom:-160px;right:-100px;animation-delay:-7s;animation-duration:26s}
+.orb-3{width:380px;height:380px;background:var(--neon-pink);top:38%;left:55%;opacity:.18;animation-delay:-14s;animation-duration:30s}
+@keyframes orbFloat{
+  0%  {transform:translate(0,0) scale(1)}
+  50% {transform:translate(90px,60px) scale(1.15)}
+  100%{transform:translate(-70px,-40px) scale(.92)}
+}
+/* cyber grid floor */
+.bg-grid{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(168,85,247,.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(34,211,238,.07) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 90% 70% at 50% 40%,black 30%,transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse 90% 70% at 50% 40%,black 30%,transparent 75%);
+  animation:gridDrift 18s linear infinite;
+}
+@keyframes gridDrift{to{background-position:56px 56px,56px 56px}}
+#particles{position:fixed;inset:0;z-index:-1;pointer-events:none}
+
+/* ================================================================
+   ✨ ENTRANCE ANIMATIONS (staggered on load + on scroll)
+   ================================================================ */
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .8s var(--ease-out),transform .8s var(--ease-out)}
+.reveal.in{opacity:1;transform:none}
+/* hero children stagger via CSS delays */
+.hero .stagger{opacity:0;animation:riseIn .9s var(--ease-out) forwards}
+@keyframes riseIn{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+.d1{animation-delay:.15s}.d2{animation-delay:.3s}.d3{animation-delay:.45s}
+.d4{animation-delay:.6s}.d5{animation-delay:.75s}.d6{animation-delay:.9s}
+
+/* ================================================================
+   🧭 NAVBAR
+   ================================================================ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 5vw;
+  background:rgba(10,10,15,.55);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--stroke);
+  animation:navDrop .8s var(--ease-out) both;
+}
+@keyframes navDrop{from{transform:translateY(-100%)}to{transform:none}}
+.logo{font-weight:700;font-size:1.3rem;letter-spacing:1px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.logo i{
+  background:linear-gradient(135deg,var(--neon-purple),var(--neon-cyan));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:spinPulse 6s ease-in-out infinite;
+}
+@keyframes spinPulse{0%,100%{transform:rotate(0)}50%{transform:rotate(180deg) scale(1.15)}}
+.logo span{background:linear-gradient(90deg,var(--neon-purple),var(--neon-cyan),var(--neon-green),var(--neon-purple));background-size:300%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:hueSlide 6s linear infinite}
+@keyframes hueSlide{to{background-position:300% 0}}
+.nav-links{display:flex;gap:6px;list-style:none}
+.nav-links a{
+  color:var(--txt-mid);text-decoration:none;font-size:.92rem;font-weight:500;
+  padding:8px 16px;border-radius:99px;position:relative;
+  transition:color .3s,background .3s,box-shadow .3s;
+}
+.nav-links a:hover{color:#fff;background:var(--glass-strong);box-shadow:0 0 18px rgba(168,85,247,.35)}
+/* streak pill in navbar */
+.streak-pill{
+  display:flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,rgba(251,191,36,.14),rgba(244,114,182,.14));
+  border:1px solid rgba(251,191,36,.4);
+  padding:8px 16px;border-radius:99px;font-weight:600;font-size:.9rem;
+  cursor:pointer;transition:transform .3s var(--ease-spring),box-shadow .3s;
+}
+.streak-pill:hover{transform:scale(1.08);box-shadow:0 0 24px rgba(251,191,36,.45)}
+.streak-pill .fa-fire{color:var(--neon-amber);animation:flameWiggle 1.2s ease-in-out infinite}
+@keyframes flameWiggle{0%,100%{transform:scale(1) rotate(-4deg)}50%{transform:scale(1.25) rotate(5deg)}}
+
+/* ================================================================
+   🚀 HERO
+   ================================================================ */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;padding:140px 5vw 80px;position:relative;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid rgba(74,222,128,.4);color:var(--neon-green);
+  background:rgba(74,222,128,.08);
+  padding:8px 18px;border-radius:99px;font-size:.85rem;font-weight:500;letter-spacing:1px;
+}
+.hero-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--neon-green);animation:blink 1.6s infinite}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 10px var(--neon-green)}50%{opacity:.25}}
+.hero h1{
+  font-size:clamp(2.4rem,6.5vw,5rem);font-weight:700;line-height:1.08;margin:26px 0 10px;letter-spacing:-1px;
+}
+.hero h1 .grad{
+  background:linear-gradient(90deg,var(--neon-purple),var(--neon-cyan) 50%,var(--neon-green));
+  background-size:200%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:hueSlide 5s linear infinite;
+  filter:drop-shadow(0 0 26px rgba(168,85,247,.45));
+}
+.hero .sub{color:var(--txt-mid);max-width:620px;font-size:1.1rem;line-height:1.7;margin-top:8px}
+/* typing line */
+.type-line{font-family:var(--font-code);color:var(--neon-cyan);margin-top:22px;font-size:1rem;min-height:1.4em}
+.type-line::after{content:'▌';animation:blink 1s infinite}
+.hero-cta{display:flex;gap:18px;margin-top:38px;flex-wrap:wrap;justify-content:center}
+/* scroll hint */
+.scroll-hint{position:absolute;bottom:28px;color:var(--txt-low);font-size:1.4rem;animation:bounceDown 2s infinite}
+@keyframes bounceDown{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(10px);opacity:1}}
+
+/* ================================================================
+   🔘 BUTTONS (with JS ripple)
+   ================================================================ */
+.btn{
+  position:relative;overflow:hidden;border:none;cursor:pointer;
+  font-family:var(--font-main);font-weight:600;font-size:1rem;
+  padding:15px 34px;border-radius:14px;color:#fff;
+  transition:transform .35s var(--ease-spring),box-shadow .35s;
+  display:inline-flex;align-items:center;gap:10px;
+}
+.btn:active{transform:scale(.94)}
+.btn-primary{
+  background:linear-gradient(135deg,var(--neon-purple),#6d28d9);
+  box-shadow:0 8px 30px rgba(168,85,247,.4);
+}
+.btn-primary:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 14px 44px rgba(168,85,247,.65)}
+.btn-ghost{
+  background:var(--glass);border:1px solid var(--stroke);
+  backdrop-filter:blur(10px);
+}
+.btn-ghost:hover{transform:translateY(-4px);border-color:var(--neon-cyan);box-shadow:0 0 28px rgba(34,211,238,.35);color:var(--neon-cyan)}
+/* ripple element injected by JS */
+.ripple{
+  position:absolute;border-radius:50%;background:rgba(255,255,255,.5);
+  transform:scale(0);animation:rippleAnim .65s ease-out forwards;pointer-events:none;
+}
+@keyframes rippleAnim{to{transform:scale(4);opacity:0}}
+
+/* ================================================================
+   📐 SECTION SHELL
+   ================================================================ */
+section{padding:110px 5vw;max-width:1280px;margin:0 auto}
+.sec-tag{
+  font-family:var(--font-code);font-size:.85rem;letter-spacing:3px;text-transform:uppercase;
+  color:var(--neon-cyan);display:flex;align-items:center;gap:12px;
+}
+.sec-tag::before{content:'';width:34px;height:2px;background:linear-gradient(90deg,var(--neon-purple),var(--neon-cyan))}
+.sec-title{font-size:clamp(1.8rem,4vw,2.7rem);font-weight:700;margin:14px 0 8px;letter-spacing:-.5px}
+.sec-sub{color:var(--txt-mid);max-width:560px;line-height:1.6;margin-bottom:48px}
+
+/* ================================================================
+   🗄️ NOTES VAULT — glass cards grid
+   ================================================================ */
+.vault-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px}
+.note-card{
+  position:relative;background:var(--glass);border:1px solid var(--stroke);
+  border-radius:var(--radius);padding:28px;overflow:hidden;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  transition:transform .45s var(--ease-spring),box-shadow .45s,border-color .45s;
+  cursor:pointer;
+}
+/* neon sweep line on top of each card */
+.note-card::before{
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:2px;
+  background:linear-gradient(90deg,transparent,var(--card-glow,var(--neon-purple)),transparent);
+  transition:left .6s ease;
+}
+.note-card:hover::before{left:100%}
+.note-card:hover{
+  transform:translateY(-12px) scale(1.03);
+  border-color:var(--card-glow,var(--neon-purple));
+  box-shadow:0 22px 50px -12px rgba(0,0,0,.8),0 0 34px -6px var(--card-glow,var(--neon-purple));
+}
+.note-icon{
+  width:58px;height:58px;border-radius:16px;display:grid;place-items:center;
+  font-size:1.5rem;margin-bottom:20px;color:var(--card-glow,var(--neon-purple));
+  background:color-mix(in srgb,var(--card-glow,var(--neon-purple)) 12%,transparent);
+  border:1px solid color-mix(in srgb,var(--card-glow,var(--neon-purple)) 35%,transparent);
+  transition:transform .45s var(--ease-spring);
+}
+.note-card:hover .note-icon{transform:rotate(-8deg) scale(1.15)}
+.note-card h3{font-size:1.15rem;margin-bottom:6px}
+.note-card p{color:var(--txt-mid);font-size:.88rem;line-height:1.55}
+.note-meta{display:flex;justify-content:space-between;align-items:center;margin-top:22px;font-size:.8rem;color:var(--txt-low)}
+.dl-btn{
+  background:none;border:1px solid var(--stroke);color:var(--txt-mid);
+  padding:7px 14px;border-radius:9px;cursor:pointer;font-family:var(--font-main);font-size:.8rem;font-weight:600;
+  transition:all .3s;position:relative;overflow:hidden;
+}
+.dl-btn:hover{background:var(--card-glow,var(--neon-purple));border-color:transparent;color:#0a0a0f;box-shadow:0 0 18px var(--card-glow,var(--neon-purple))}
+
+/* ================================================================
+   🏆 NATIONAL ARENA — rank dashboard + leaderboard
+   ================================================================ */
+.arena-wrap{display:grid;grid-template-columns:1.1fr 1fr;gap:28px}
+@media (max-width:900px){.arena-wrap{grid-template-columns:1fr}}
+.panel{
+  background:var(--glass);border:1px solid var(--stroke);border-radius:var(--radius);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  padding:32px;transition:transform .4s var(--ease-out),box-shadow .4s;
+}
+.panel:hover{transform:translateY(-6px);box-shadow:0 18px 48px -14px rgba(0,0,0,.85)}
+.panel h3{font-size:1.15rem;display:flex;align-items:center;gap:10px;margin-bottom:26px}
+.panel h3 i{color:var(--neon-purple)}
+
+/* circular percentile ring (SVG animated by JS) */
+.rank-flex{display:flex;align-items:center;gap:34px;flex-wrap:wrap}
+.ring-box{position:relative;width:170px;height:170px;flex-shrink:0}
+.ring-box svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(255,255,255,.07);stroke-width:11}
+.ring-val{
+  fill:none;stroke:url(#ringGrad);stroke-width:11;stroke-linecap:round;
+  filter:drop-shadow(0 0 8px rgba(34,211,238,.7));
+  transition:stroke-dashoffset 2s var(--ease-out);
+}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-center strong{font-size:2rem;font-weight:700;color:var(--neon-cyan)}
+.ring-center span{font-size:.72rem;color:var(--txt-low);letter-spacing:2px;text-transform:uppercase}
+/* stat bars */
+.stat{margin-bottom:18px}
+.stat .lbl{display:flex;justify-content:space-between;font-size:.85rem;color:var(--txt-mid);margin-bottom:8px}
+.stat .lbl b{color:var(--txt-hi)}
+.bar{height:9px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden}
+.bar-fill{
+  height:100%;width:0;border-radius:99px;position:relative;
+  background:linear-gradient(90deg,var(--bar-c1,var(--neon-purple)),var(--bar-c2,var(--neon-cyan)));
+  transition:width 1.8s var(--ease-out);
+  box-shadow:0 0 12px var(--bar-c2,var(--neon-cyan));
+}
+/* shimmer running along filled bars */
+.bar-fill::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);
+  transform:translateX(-100%);animation:shimmer 2.4s infinite 2s;
+}
+@keyframes shimmer{to{transform:translateX(100%)}}
+.rank-line{margin-top:10px;font-size:.9rem;color:var(--txt-mid)}
+.rank-line b{color:var(--neon-green)}
+
+/* leaderboard rows */
+.lb-row{
+  display:flex;align-items:center;gap:16px;padding:13px 16px;border-radius:14px;
+  transition:background .3s,transform .3s;
+}
+.lb-row:hover{background:var(--glass-strong);transform:translateX(8px)}
+.lb-rank{font-family:var(--font-code);font-weight:700;width:34px;color:var(--txt-low)}
+.lb-row:nth-child(2) .lb-rank{color:var(--neon-amber)}
+.lb-row:nth-child(3) .lb-rank{color:#cbd5e1}
+.lb-row:nth-child(4) .lb-rank{color:#d97706}
+.lb-avatar{
+  width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.9rem;
+  background:linear-gradient(135deg,var(--av-c1,#a855f7),var(--av-c2,#22d3ee));
+}
+.lb-name{flex:1}
+.lb-name b{display:block;font-size:.95rem}
+.lb-name span{font-size:.75rem;color:var(--txt-low)}
+.lb-xp{font-family:var(--font-code);color:var(--neon-green);font-size:.9rem}
+/* highlighted "you" row */
+.lb-you{
+  border:1px dashed rgba(168,85,247,.55);
+  background:rgba(168,85,247,.08);
+  animation:youPulse 2.6s ease-in-out infinite;
+}
+@keyframes youPulse{0%,100%{box-shadow:0 0 0 rgba(168,85,247,0)}50%{box-shadow:0 0 22px rgba(168,85,247,.35)}}
+
+/* ================================================================
+   💻 CODE LAB — fake IDE
+   ================================================================ */
+.ide{
+  border-radius:var(--radius);overflow:hidden;border:1px solid var(--stroke);
+  background:#0d0d15;box-shadow:0 30px 70px -20px rgba(0,0,0,.9);
+  transition:box-shadow .4s;
+}
+.ide:hover{box-shadow:0 30px 80px -18px rgba(0,0,0,.95),0 0 44px -12px rgba(34,211,238,.35)}
+.ide-bar{
+  display:flex;align-items:center;gap:12px;padding:13px 18px;
+  background:rgba(255,255,255,.03);border-bottom:1px solid var(--stroke);
+}
+.ide-dot{width:12px;height:12px;border-radius:50%}
+.ide-dot.r{background:#ff5f57}.ide-dot.y{background:#febc2e}.ide-dot.g{background:#28c840}
+.ide-tab{
+  margin-left:14px;font-family:var(--font-code);font-size:.8rem;color:var(--txt-mid);
+  background:var(--glass);padding:6px 16px;border-radius:8px;border:1px solid var(--stroke);
+}
+.ide-tab i{color:var(--neon-amber);margin-right:8px}
+.run-btn{
+  margin-left:auto;background:linear-gradient(135deg,var(--neon-green),#16a34a);
+  color:#052e16;border:none;font-weight:700;font-family:var(--font-main);
+  padding:8px 22px;border-radius:9px;cursor:pointer;font-size:.85rem;
+  display:flex;align-items:center;gap:8px;position:relative;overflow:hidden;
+  transition:transform .3s var(--ease-spring),box-shadow .3s;
+}
+.run-btn:hover{transform:scale(1.07);box-shadow:0 0 24px rgba(74,222,128,.6)}
+.run-btn:active{transform:scale(.93)}
+.ide-body{display:grid;grid-template-columns:52px 1fr;font-family:var(--font-code);font-size:.88rem;line-height:1.85}
+.ide-lines{padding:22px 0;text-align:right;color:var(--txt-low);background:rgba(255,255,255,.015);user-select:none;padding-right:14px}
+.ide-code{padding:22px;overflow-x:auto;white-space:pre}
+/* syntax colors */
+.tk-kw{color:#c084fc}.tk-fn{color:#22d3ee}.tk-str{color:#4ade80}.tk-cm{color:#565b6e;font-style:italic}.tk-num{color:#fbbf24}.tk-var{color:#e2e8f0}
+/* console */
+.console{
+  border-top:1px solid var(--stroke);background:#08080d;padding:18px 22px;
+  font-family:var(--font-code);font-size:.85rem;min-height:120px;
+}
+.console-head{color:var(--txt-low);font-size:.72rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.console-head i{color:var(--neon-green)}
+.console-line{opacity:0;transform:translateX(-12px);transition:opacity .4s,transform .4s;margin-bottom:5px}
+.console-line.show{opacity:1;transform:none}
+.console-line.ok{color:var(--neon-green)}
+.console-line.info{color:var(--txt-mid)}
+.console-line.accent{color:var(--neon-cyan)}
+
+/* ================================================================
+   🔥 SNAP STREAK
+   ================================================================ */
+.streak-panel{
+  position:relative;text-align:center;padding:64px 32px;overflow:hidden;
+  background:linear-gradient(160deg,rgba(251,191,36,.07),rgba(244,114,182,.07),rgba(168,85,247,.07));
+  border:1px solid rgba(251,191,36,.25);border-radius:26px;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+.big-fire{
+  font-size:4.6rem;display:inline-block;
+  filter:drop-shadow(0 0 26px rgba(251,146,60,.8));
+  animation:fireBreathe 1.6s ease-in-out infinite;
+}
+@keyframes fireBreathe{
+  0%,100%{transform:scale(1) rotate(-3deg)}
+  50%{transform:scale(1.18) rotate(4deg);filter:drop-shadow(0 0 44px rgba(251,146,60,1))}
+}
+.streak-count{
+  font-size:clamp(2.6rem,6vw,4rem);font-weight:700;margin:10px 0 4px;
+  background:linear-gradient(90deg,var(--neon-amber),#fb923c,var(--neon-pink));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.streak-panel p{color:var(--txt-mid);max-width:440px;margin:0 auto 30px;line-height:1.6}
+.streak-days{display:flex;gap:10px;justify-content:center;margin-bottom:36px;flex-wrap:wrap}
+.day-chip{
+  width:46px;height:46px;border-radius:14px;display:grid;place-items:center;
+  border:1px solid var(--stroke);color:var(--txt-low);font-size:.78rem;font-weight:600;
+  transition:transform .3s var(--ease-spring);
+}
+.day-chip:hover{transform:scale(1.15)}
+.day-chip.lit{
+  border-color:rgba(251,191,36,.6);color:var(--neon-amber);
+  background:rgba(251,191,36,.1);box-shadow:0 0 14px rgba(251,191,36,.3);
+}
+.btn-snap{
+  background:linear-gradient(135deg,var(--neon-amber),#fb923c,var(--neon-pink));
+  color:#1c0a00;box-shadow:0 10px 34px rgba(251,146,60,.45);font-size:1.05rem;
+}
+.btn-snap:hover{transform:translateY(-4px) scale(1.05);box-shadow:0 16px 48px rgba(251,146,60,.7)}
+/* fire particles that burst out on snap send (JS spawned) */
+.fire-bit{position:absolute;pointer-events:none;font-size:1.4rem;animation:fireFly 1.15s ease-out forwards}
+@keyframes fireFly{
+  0%{transform:translate(0,0) scale(.6) rotate(0);opacity:1}
+  100%{transform:translate(var(--fx),var(--fy)) scale(1.5) rotate(var(--fr));opacity:0}
+}
+/* "sent" toast */
+.toast{
+  position:fixed;bottom:110px;left:50%;transform:translate(-50%,20px);
+  background:rgba(18,18,28,.9);border:1px solid rgba(74,222,128,.5);
+  color:var(--neon-green);padding:14px 28px;border-radius:14px;font-weight:600;
+  backdrop-filter:blur(14px);opacity:0;pointer-events:none;z-index:300;
+  transition:opacity .4s,transform .4s var(--ease-spring);
+  display:flex;align-items:center;gap:10px;box-shadow:0 0 34px rgba(74,222,128,.25);
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ================================================================
+   🤖 AI ASSISTANT WIDGET
+   ================================================================ */
+.ai-fab{
+  position:fixed;bottom:28px;right:28px;z-index:200;
+  width:66px;height:66px;border-radius:50%;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--neon-purple),var(--neon-cyan));
+  color:#fff;font-size:1.6rem;display:grid;place-items:center;
+  box-shadow:0 10px 34px rgba(168,85,247,.55);
+  animation:fabFloat 3s ease-in-out infinite;
+  transition:transform .35s var(--ease-spring);
+}
+.ai-fab:hover{transform:scale(1.14) rotate(8deg)}
+@keyframes fabFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+/* pulsing halo rings */
+.ai-fab::before,.ai-fab::after{
+  content:'';position:absolute;inset:0;border-radius:50%;
+  border:2px solid rgba(34,211,238,.55);animation:halo 2.4s ease-out infinite;
+}
+.ai-fab::after{animation-delay:1.2s}
+@keyframes halo{from{transform:scale(1);opacity:1}to{transform:scale(1.9);opacity:0}}
+.ai-fab i{animation:botNod 4s ease-in-out infinite}
+@keyframes botNod{0%,100%{transform:rotate(0)}20%{transform:rotate(-12deg)}40%{transform:rotate(10deg)}60%{transform:rotate(0)}}
+
+.chat-box{
+  position:fixed;bottom:110px;right:28px;z-index:200;
+  width:min(370px,calc(100vw - 40px));height:480px;
+  background:rgba(16,16,26,.82);border:1px solid var(--stroke);border-radius:22px;
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 30px 80px -14px rgba(0,0,0,.9),0 0 40px -10px rgba(168,85,247,.35);
+  transform-origin:bottom right;
+  transform:scale(.4);opacity:0;pointer-events:none;
+  transition:transform .45s var(--ease-spring),opacity .3s;
+}
+.chat-box.open{transform:scale(1);opacity:1;pointer-events:auto}
+.chat-head{
+  padding:16px 20px;display:flex;align-items:center;gap:12px;
+  background:linear-gradient(135deg,rgba(168,85,247,.22),rgba(34,211,238,.22));
+  border-bottom:1px solid var(--stroke);
+}
+.chat-head .bot-av{
+  width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--neon-purple),var(--neon-cyan));font-size:1.1rem;
+}
+.chat-head b{display:block;font-size:.98rem}
+.chat-head small{color:var(--neon-green);font-size:.72rem;display:flex;align-items:center;gap:6px}
+.chat-head small::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--neon-green);animation:blink 1.6s infinite}
+.chat-close{margin-left:auto;background:none;border:none;color:var(--txt-mid);font-size:1.1rem;cursor:pointer;transition:color .3s,transform .3s}
+.chat-close:hover{color:#fff;transform:rotate(90deg)}
+.chat-log{flex:1;padding:18px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.msg{
+  max-width:82%;padding:11px 15px;border-radius:16px;font-size:.88rem;line-height:1.55;
+  animation:msgPop .4s var(--ease-spring) both;white-space:pre-wrap;
+}
+@keyframes msgPop{from{opacity:0;transform:translateY(14px) scale(.9)}to{opacity:1;transform:none}}
+.msg.bot{background:var(--glass-strong);border:1px solid var(--stroke);border-bottom-left-radius:4px;align-self:flex-start}
+.msg.user{background:linear-gradient(135deg,var(--neon-purple),#7c3aed);border-bottom-right-radius:4px;align-self:flex-end}
+.msg code{font-family:var(--font-code);background:rgba(0,0,0,.4);padding:2px 6px;border-radius:6px;color:var(--neon-green);font-size:.8rem}
+/* typing dots */
+.typing{display:flex;gap:5px;padding:14px 16px}
+.typing i{width:8px;height:8px;border-radius:50%;background:var(--neon-cyan);animation:tDot 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes tDot{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-6px);opacity:1}}
+.chat-input{display:flex;gap:10px;padding:14px;border-top:1px solid var(--stroke)}
+.chat-input input{
+  flex:1;background:var(--glass);border:1px solid var(--stroke);border-radius:12px;
+  padding:12px 16px;color:var(--txt-hi);font-family:var(--font-main);font-size:.9rem;outline:none;
+  transition:border-color .3s,box-shadow .3s;
+}
+.chat-input input:focus{border-color:var(--neon-cyan);box-shadow:0 0 16px rgba(34,211,238,.3)}
+.chat-send{
+  width:46px;border:none;border-radius:12px;cursor:pointer;color:#fff;
+  background:linear-gradient(135deg,var(--neon-cyan),#0891b2);font-size:1rem;
+  transition:transform .3s var(--ease-spring),box-shadow .3s;
+}
+.chat-send:hover{transform:scale(1.1);box-shadow:0 0 18px rgba(34,211,238,.5)}
+
+/* ================================================================
+   FOOTER
+   ================================================================ */
+footer{
+  text-align:center;padding:44px 5vw;color:var(--txt-low);font-size:.85rem;
+  border-top:1px solid var(--stroke);margin-top:40px;
+}
+footer b{background:linear-gradient(90deg,var(--neon-purple),var(--neon-cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* ================================================================
+   📱 RESPONSIVE
+   ================================================================ */
+@media (max-width:760px){
+  .nav-links{display:none}
+  section{padding:80px 6vw}
+  .rank-flex{justify-content:center}
+  .ide-body{font-size:.78rem}
+}
+/* respect reduced-motion users */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ ANIMATED BACKGROUND ============ -->
+<div class="bg-scene" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+<div class="bg-grid" aria-hidden="true"></div>
+<canvas id="particles" aria-hidden="true"></canvas>
+
+<!-- ============ NAVBAR ============ -->
+<nav id="main-nav">
+  <div class="logo"><i class="fa-solid fa-atom"></i><span>ENGIVERSE</span></div>
+  <ul class="nav-links">
+    <li><a href="#notes-vault">Notes Vault</a></li>
+    <li><a href="#national-arena">Arena</a></li>
+    <li><a href="#code-lab">Code Lab</a></li>
+    <li><a href="#snap-streak">Streaks</a></li>
+  </ul>
+  <div class="streak-pill" onclick="document.getElementById('snap-streak').scrollIntoView()" title="Your coding streak">
+    <i class="fa-solid fa-fire"></i> <span id="nav-streak">14</span>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="hero-section">
+  <div class="hero-badge stagger d1"><span class="dot"></span> SYSTEM ONLINE · SEM 5 UNLOCKED</div>
+  <h1 class="stagger d2">Welcome to the Arena,<br><span class="grad">Nikhil Sharma</span> ⚡</h1>
+  <p class="sub stagger d3">Your all-in-one battle station — notes, national mock tests, a live code lab and an AI teacher that never sleeps. Time to out-grind everyone.</p>
+  <div class="type-line stagger d4" id="type-line"></div>
+  <div class="hero-cta stagger d5">
+    <button class="btn btn-primary" onclick="document.getElementById('code-lab').scrollIntoView()"><i class="fa-solid fa-bolt"></i> Enter Code Lab</button>
+    <button class="btn btn-ghost" onclick="document.getElementById('national-arena').scrollIntoView()"><i class="fa-solid fa-ranking-star"></i> Check My Rank</button>
+  </div>
+  <div class="scroll-hint stagger d6"><i class="fa-solid fa-chevron-down"></i></div>
+</header>
+
+<main>
+<!-- ============ NOTES VAULT ============ -->
+<section id="notes-vault">
+  <div class="sec-tag reveal">01 // Knowledge Base</div>
+  <h2 class="sec-title reveal">Notes Vault 🗄️</h2>
+  <p class="sec-sub reveal">Battle-tested notes, curated by toppers. One click and it's yours — no signup walls, no ads, no cap.</p>
+
+  <div class="vault-grid">
+    <article class="note-card reveal" style="--card-glow:#a855f7">
+      <div class="note-icon"><i class="fa-solid fa-microchip"></i></div>
+      <h3>Digital Electronics</h3>
+      <p>K-maps, flip-flops, counters &amp; FSM design with solved PYQs.</p>
+      <div class="note-meta"><span><i class="fa-solid fa-file-pdf"></i> 42 files</span><button class="dl-btn">Download <i class="fa-solid fa-download"></i></button></div>
+    </article>
+    <article class="note-card reveal" style="--card-glow:#22d3ee">
+      <div class="note-icon"><i class="fa-solid fa-code"></i></div>
+      <h3>Data Structures</h3>
+      <p>Trees, graphs, DP patterns — annotated with complexity cheatsheets.</p>
+      <div class="note-meta"><span><i class="fa-solid fa-file-pdf"></i> 58 files</span><button class="dl-btn">Download <i class="fa-solid fa-download"></i></button></div>
+    </article>
+    <article class="note-card reveal" style="--card-glow:#4ade80">
+      <div class="note-icon"><i class="fa-solid fa-wave-square"></i></div>
+      <h3>Signals &amp; Systems</h3>
+      <p>Fourier, Laplace &amp; Z-transforms explained like you're 5 (but smarter).</p>
+      <div class="note-meta"><span><i class="fa-solid fa-file-pdf"></i> 31 files</span><button class="dl-btn">Download <i class="fa-solid fa-download"></i></button></div>
+    </article>
+    <article class="note-card reveal" style="--card-glow:#f472b6">
+      <div class="note-icon"><i class="fa-solid fa-gears"></i></div>
+      <h3>Thermodynamics</h3>
+      <p>All 4 laws, cycles &amp; entropy problems with stepwise solutions.</p>
+      <div class="note-meta"><span><i class="fa-solid fa-file-pdf"></i> 27 files</span><button class="dl-btn">Download <i class="fa-solid fa-download"></i></button></div>
+    </article>
+    <article class="note-card reveal" style="--card-glow:#fbbf24">
+      <div class="note-icon"><i class="fa-solid fa-square-root-variable"></i></div>
+      <h3>Engineering Maths</h3>
+      <p>Linear algebra, calculus &amp; probability — the GATE-cracker pack.</p>
+      <div class="note-meta"><span><i class="fa-solid fa-file-pdf"></i> 64 files</span><button class="dl-btn">Download <i class="fa-solid fa-download"></i></button></div>
+    </article>
+    <article class="note-card reveal" style="--card-glow:#818cf8">
+      <div class="note-icon"><i class="fa-solid fa-network-wired"></i></div>
+      <h3>Computer Networks</h3>
+      <p>OSI to TCP/IP, subnetting drills &amp; protocol deep-dives.</p>
+      <div class="note-meta"><span><i class="fa-solid fa-file-pdf"></i> 36 files</span><button class="dl-btn">Download <i class="fa-solid fa-download"></i></button></div>
+    </article>
+  </div>
+</section>
+
+<!-- ============ NATIONAL ARENA ============ -->
+<section id="national-arena">
+  <div class="sec-tag reveal">02 // Compete Nationally</div>
+  <h2 class="sec-title reveal">The National Arena 🏆</h2>
+  <p class="sec-sub reveal">Mock tests scored against every engineering student on the platform. See exactly where you stand in the country — live.</p>
+
+  <div class="arena-wrap">
+    <!-- rank dashboard -->
+    <div class="panel reveal" id="rank-dashboard">
+      <h3><i class="fa-solid fa-gauge-high"></i> Your Performance Matrix</h3>
+      <div class="rank-flex">
+        <div class="ring-box">
+          <svg width="170" height="170" viewBox="0 0 170 170">
+            <defs>
+              <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#a855f7"/>
+                <stop offset="100%" stop-color="#22d3ee"/>
+              </linearGradient>
+            </defs>
+            <circle class="ring-bg" cx="85" cy="85" r="72"/>
+            <circle class="ring-val" id="percentile-ring" cx="85" cy="85" r="72"/>
+          </svg>
+          <div class="ring-center">
+            <strong><span id="percentile-num">0</span>%</strong>
+            <span>Percentile</span>
+          </div>
+        </div>
+        <div style="flex:1;min-width:220px">
+          <div class="stat">
+            <div class="lbl"><span>DSA Mock #12</span><b>92/100</b></div>
+            <div class="bar"><div class="bar-fill" data-w="92%" style="--bar-c1:#a855f7;--bar-c2:#22d3ee"></div></div>
+          </div>
+          <div class="stat">
+            <div class="lbl"><span>Aptitude Sprint</span><b>78/100</b></div>
+            <div class="bar"><div class="bar-fill" data-w="78%" style="--bar-c1:#22d3ee;--bar-c2:#4ade80"></div></div>
+          </div>
+          <div class="stat">
+            <div class="lbl"><span>Core Subject Test</span><b>85/100</b></div>
+            <div class="bar"><div class="bar-fill" data-w="85%" style="--bar-c1:#f472b6;--bar-c2:#fbbf24"></div></div>
+          </div>
+          <div class="rank-line"><i class="fa-solid fa-arrow-trend-up" style="color:var(--neon-green)"></i> National Rank <b>#347</b> of 52,914 — up <b>+112</b> this week</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- leaderboard -->
+    <div class="panel reveal" id="leaderboard">
+      <h3><i class="fa-solid fa-trophy"></i> National Leaderboard — This Week</h3>
+      <div class="lb-row" style="--av-c1:#fbbf24;--av-c2:#f472b6">
+        <span class="lb-rank">#1</span><div class="lb-avatar">AR</div>
+        <div class="lb-name"><b>Aarav Reddy</b><span>IIT Bombay · CSE</span></div><span class="lb-xp">12,480 XP</span>
+      </div>
+      <div class="lb-row" style="--av-c1:#22d3ee;--av-c2:#4ade80">
+        <span class="lb-rank">#2</span><div class="lb-avatar">PK</div>
+        <div class="lb-name"><b>Priya Kulkarni</b><span>NIT Trichy · ECE</span></div><span class="lb-xp">11,905 XP</span>
+      </div>
+      <div class="lb-row" style="--av-c1:#818cf8;--av-c2:#f472b6">
+        <span class="lb-rank">#3</span><div class="lb-avatar">VS</div>
+        <div class="lb-name"><b>Vikram Singh</b><span>BITS Pilani · Mech</span></div><span class="lb-xp">11,240 XP</span>
+      </div>
+      <div class="lb-row" style="--av-c1:#4ade80;--av-c2:#22d3ee">
+        <span class="lb-rank">#4</span><div class="lb-avatar">SD</div>
+        <div class="lb-name"><b>Sneha Das</b><span>Jadavpur Univ · IT</span></div><span class="lb-xp">10,876 XP</span>
+      </div>
+      <div class="lb-row lb-you" style="--av-c1:#a855f7;--av-c2:#22d3ee">
+        <span class="lb-rank">#347</span><div class="lb-avatar">NS</div>
+        <div class="lb-name"><b>Nikhil Sharma (You)</b><span>Grinding mode: ON 🔥</span></div><span class="lb-xp">6,120 XP</span>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:22px"><i class="fa-solid fa-swords"></i> Start Today's Mock Test</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CODE LAB ============ -->
+<section id="code-lab">
+  <div class="sec-tag reveal">03 // Build &amp; Break</div>
+  <h2 class="sec-title reveal">Code Lab 💻</h2>
+  <p class="sec-sub reveal">A full IDE in your browser. Write, run and flex — no setup, no excuses.</p>
+
+  <div class="ide reveal">
+    <div class="ide-bar">
+      <span class="ide-dot r"></span><span class="ide-dot y"></span><span class="ide-dot g"></span>
+      <span class="ide-tab"><i class="fa-brands fa-python"></i>rank_predictor.py</span>
+      <button class="run-btn" id="run-btn"><i class="fa-solid fa-play"></i> Run Code</button>
+    </div>
+    <div class="ide-body">
+      <div class="ide-lines">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div>
+      <div class="ide-code" id="ide-code"><span class="tk-cm"># rank_predictor.py — Nikhil's grind calculator</span>
+<span class="tk-kw">def</span> <span class="tk-fn">predict_rank</span>(streak_days, mocks_done):
+    <span class="tk-var">base</span> = <span class="tk-num">52914</span>
+    <span class="tk-var">boost</span> = streak_days * <span class="tk-num">120</span> + mocks_done * <span class="tk-num">300</span>
+    <span class="tk-kw">return</span> <span class="tk-fn">max</span>(<span class="tk-num">1</span>, base - boost)
+
+<span class="tk-var">streak</span> = <span class="tk-num">14</span>
+<span class="tk-var">mocks</span>  = <span class="tk-num">12</span>
+<span class="tk-fn">print</span>(<span class="tk-str">f"Predicted National Rank: #{predict_rank(streak, mocks)}"</span>)
+<span class="tk-fn">print</span>(<span class="tk-str">"Keep the streak alive, Nikhil 🔥"</span>)</div>
+    </div>
+    <div class="console">
+      <div class="console-head"><i class="fa-solid fa-terminal"></i> Console Output</div>
+      <div id="console-out"><div class="console-line info show">— press <span style="color:var(--neon-green)">▶ Run Code</span> to execute —</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SNAP STREAK ============ -->
+<section id="snap-streak">
+  <div class="sec-tag reveal">04 // Social Grind</div>
+  <h2 class="sec-title reveal">Coding Snap Streaks 🔥</h2>
+  <p class="sec-sub reveal">Snapchat energy, but for code. Ship code every day, keep the flame alive and flex it on your squad.</p>
+
+  <div class="streak-panel reveal" id="streak-panel">
+    <span class="big-fire">🔥</span>
+    <div class="streak-count"><span id="streak-num">14</span> Day Streak</div>
+    <p>You and your squad have shipped code for 2 weeks straight. Miss a day and the flame dies — no pressure. 😈</p>
+    <div class="streak-days" id="streak-days">
+      <div class="day-chip lit">M</div><div class="day-chip lit">T</div><div class="day-chip lit">W</div>
+      <div class="day-chip lit">T</div><div class="day-chip lit">F</div><div class="day-chip lit">S</div>
+      <div class="day-chip" id="today-chip">S</div>
+    </div>
+    <button class="btn btn-snap" id="snap-btn"><i class="fa-solid fa-bolt-lightning"></i> Send Code Snap</button>
+  </div>
+</section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  Built for the grind · <b>ENGIVERSE</b> © 2026 · Stay caffeinated, Nikhil ☕
+</footer>
+
+<!-- ============ AI ASSISTANT ============ -->
+<button class="ai-fab" id="ai-fab" aria-label="Open AI Teacher chat"><i class="fa-solid fa-robot"></i></button>
+
+<aside class="chat-box" id="chat-box" aria-label="AI Teacher chat window">
+  <div class="chat-head">
+    <div class="bot-av"><i class="fa-solid fa-robot"></i></div>
+    <div><b>Prof. Byte — AI Teacher</b><small>online · replies instantly</small></div>
+    <button class="chat-close" id="chat-close" aria-label="Close chat"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="chat-log" id="chat-log">
+    <div class="msg bot">Yo Nikhil! 👋 I'm Prof. Byte, your 24/7 AI teacher. Stuck on recursion? Confused by pointers? Ask me anything.</div>
+  </div>
+  <div class="chat-input">
+    <input type="text" id="chat-input" placeholder="Ask about code, concepts, exams…" autocomplete="off">
+    <button class="chat-send" id="chat-send" aria-label="Send message"><i class="fa-solid fa-paper-plane"></i></button>
+  </div>
+</aside>
+
+<!-- ============ TOAST ============ -->
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i> Code Snap sent to your squad! Streak extended ⚡</div>
+
+<script>
+/* ================================================================
+   ENGIVERSE — all interactivity. Sections:
+   1. Particle background      5. Fake compiler console
+   2. Scroll reveal            6. Snap Streak feature
+   3. Button ripples           7. AI Teacher chat widget
+   4. Hero typing + arena stats
+   ================================================================ */
+
+/* ---------- 1. PARTICLE BACKGROUND (canvas) ---------- */
+(function particles() {
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  const COLORS = ['#a855f7', '#22d3ee', '#4ade80', '#f472b6'];
+  let dots = [];
+
+  function resize() {
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+  }
+  resize();
+  addEventListener('resize', resize);
+
+  // spawn ~1 dot per 22k px², capped for perf
+  const COUNT = Math.min(70, Math.floor(innerWidth * innerHeight / 22000));
+  for (let i = 0; i < COUNT; i++) {
+    dots.push({
+      x: Math.random() * innerWidth,
+      y: Math.random() * innerHeight,
+      r: Math.random() * 2 + 0.6,
+      vx: (Math.random() - .5) * 0.35,
+      vy: (Math.random() - .5) * 0.35,
+      c: COLORS[Math.floor(Math.random() * COLORS.length)],
+      a: Math.random() * 0.5 + 0.15
+    });
+  }
+
+  (function tick() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const d of dots) {
+      d.x += d.vx; d.y += d.vy;
+      // wrap around edges
+      if (d.x < -10) d.x = canvas.width + 10;
+      if (d.x > canvas.width + 10) d.x = -10;
+      if (d.y < -10) d.y = canvas.height + 10;
+      if (d.y > canvas.height + 10) d.y = -10;
+      ctx.globalAlpha = d.a;
+      ctx.fillStyle = d.c;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = d.c;
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(tick);
+  })();
+})();
+
+/* ---------- 2. SCROLL REVEAL (IntersectionObserver, staggered) ---------- */
+(function scrollReveal() {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        // small stagger between siblings entering together
+        setTimeout(() => e.target.classList.add('in'), (i % 6) * 90);
+        io.unobserve(e.target);
+        // when the arena panel appears, fire its number animations
+        if (e.target.id === 'rank-dashboard') animateArena();
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+})();
+
+/* ---------- 3. RIPPLE EFFECT on every button ---------- */
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.btn, .run-btn, .dl-btn, .chat-send');
+  if (!btn) return;
+  const rect = btn.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  const ripple = document.createElement('span');
+  ripple.className = 'ripple';
+  ripple.style.width = ripple.style.height = size + 'px';
+  ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+  ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+  btn.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 700);
+});
+
+/* ---------- 4a. HERO TYPING EFFECT ---------- */
+(function typer() {
+  const lines = [
+    '> initializing grind_mode.exe ...',
+    '> 6,120 XP loaded · Rank #347 and climbing',
+    '> streak = 14 days 🔥 keep it alive',
+    '> objective: TOP 100 by end of sem'
+  ];
+  const el = document.getElementById('type-line');
+  let li = 0, ci = 0, deleting = false;
+
+  (function step() {
+    const line = lines[li];
+    el.textContent = line.slice(0, ci);
+    if (!deleting) {
+      ci++;
+      if (ci > line.length) { deleting = true; return setTimeout(step, 2100); }
+      return setTimeout(step, 42);
+    }
+    ci--;
+    if (ci < 0) { deleting = false; ci = 0; li = (li + 1) % lines.length; return setTimeout(step, 350); }
+    setTimeout(step, 16);
+  })();
+})();
+
+/* ---------- 4b. ARENA — percentile ring + bars + count-up ---------- */
+function animateArena() {
+  // circular ring: circumference = 2πr (r = 72)
+  const RING_LEN = 2 * Math.PI * 72;
+  const ring = document.getElementById('percentile-ring');
+  const TARGET = 94; // percentile — tweak here
+  ring.style.strokeDasharray = RING_LEN;
+  ring.style.strokeDashoffset = RING_LEN;
+  requestAnimationFrame(() => {
+    ring.style.strokeDashoffset = RING_LEN * (1 - TARGET / 100);
+  });
+
+  // number count-up synced with the ring
+  const numEl = document.getElementById('percentile-num');
+  const start = performance.now(), DUR = 2000;
+  (function count(t) {
+    const p = Math.min(1, (t - start) / DUR);
+    const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+    numEl.textContent = Math.round(TARGET * eased);
+    if (p < 1) requestAnimationFrame(count);
+  })(start);
+
+  // grow the score bars
+  document.querySelectorAll('.bar-fill').forEach((b, i) => {
+    setTimeout(() => { b.style.width = b.dataset.w; }, 200 + i * 220);
+  });
+}
+
+/* ---------- 5. CODE LAB — simulated compiler run ---------- */
+(function codeLab() {
+  const runBtn = document.getElementById('run-btn');
+  const out = document.getElementById('console-out');
+  let running = false;
+
+  runBtn.addEventListener('click', () => {
+    if (running) return;
+    running = true;
+    out.innerHTML = '';
+    runBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Running…';
+
+    const lines = [
+      { text: '$ python rank_predictor.py', cls: 'info', delay: 300 },
+      { text: '[interpreter] compiling… OK (0.03s)', cls: 'info', delay: 900 },
+      { text: 'Predicted National Rank: #47,634', cls: 'accent', delay: 1600 },
+      { text: 'Keep the streak alive, Nikhil 🔥', cls: 'accent', delay: 2100 },
+      { text: '✓ Process finished with exit code 0', cls: 'ok', delay: 2700 }
+    ];
+
+    lines.forEach(l => {
+      setTimeout(() => {
+        const div = document.createElement('div');
+        div.className = 'console-line ' + l.cls;
+        div.textContent = l.text;
+        out.appendChild(div);
+        requestAnimationFrame(() => div.classList.add('show'));
+      }, l.delay);
+    });
+
+    setTimeout(() => {
+      runBtn.innerHTML = '<i class="fa-solid fa-play"></i> Run Code';
+      running = false;
+    }, 3000);
+  });
+})();
+
+/* ---------- 6. SNAP STREAK — send snap w/ fire burst ---------- */
+(function snapStreak() {
+  const snapBtn = document.getElementById('snap-btn');
+  const panel = document.getElementById('streak-panel');
+  const toast = document.getElementById('toast');
+  const streakNum = document.getElementById('streak-num');
+  const navStreak = document.getElementById('nav-streak');
+  const todayChip = document.getElementById('today-chip');
+  const EMOJIS = ['🔥', '⚡', '✨', '💥'];
+  let sentToday = false;
+
+  snapBtn.addEventListener('click', () => {
+    // 1) fire-particle burst from the button
+    const btnRect = snapBtn.getBoundingClientRect();
+    const panelRect = panel.getBoundingClientRect();
+    for (let i = 0; i < 16; i++) {
+      const bit = document.createElement('span');
+      bit.className = 'fire-bit';
+      bit.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+      // start at the button center (relative to the panel)
+      bit.style.left = (btnRect.left - panelRect.left + btnRect.width / 2) + 'px';
+      bit.style.top = (btnRect.top - panelRect.top + btnRect.height / 2) + 'px';
+      // random explosion vector via CSS custom props
+      const angle = (Math.PI * 2 * i) / 16 + Math.random() * 0.5;
+      const dist = 90 + Math.random() * 130;
+      bit.style.setProperty('--fx', Math.cos(angle) * dist + 'px');
+      bit.style.setProperty('--fy', (Math.sin(angle) * dist - 60) + 'px');
+      bit.style.setProperty('--fr', (Math.random() * 360 - 180) + 'deg');
+      panel.appendChild(bit);
+      setTimeout(() => bit.remove(), 1200);
+    }
+
+    // 2) bump the streak (only once per "day")
+    if (!sentToday) {
+      sentToday = true;
+      const next = parseInt(streakNum.textContent, 10) + 1;
+      streakNum.textContent = next;
+      navStreak.textContent = next;
+      todayChip.classList.add('lit');
+      snapBtn.innerHTML = '<i class="fa-solid fa-check"></i> Snap Sent — Streak Saved!';
+    }
+
+    // 3) toast confirmation
+    toast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toast.classList.remove('show'), 2600);
+  });
+})();
+
+/* ---------- 7. AI TEACHER — chat widget (simulated replies) ---------- */
+(function aiTeacher() {
+  const fab = document.getElementById('ai-fab');
+  const box = document.getElementById('chat-box');
+  const closeBtn = document.getElementById('chat-close');
+  const log = document.getElementById('chat-log');
+  const input = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('chat-send');
+
+  fab.addEventListener('click', () => {
+    box.classList.toggle('open');
+    if (box.classList.contains('open')) input.focus();
+  });
+  closeBtn.addEventListener('click', () => box.classList.remove('open'));
+
+  // tiny keyword "brain" — swap for a real API later
+  const REPLIES = [
+    { keys: ['recursion'], text: 'Recursion = a function calling itself. 🌀 Two rules:\n1️⃣ Base case (when to STOP)\n2️⃣ Recursive case (shrink the problem)\n\nTry: factorial(n) = n * factorial(n-1), base: factorial(0) = 1' },
+    { keys: ['pointer'], text: 'Pointers store *addresses*, not values. 📍\n\ncode: int x = 5; int *p = &x;\n\n*p reads the value at that address (5). Think of it as a home address vs the house itself. 🏠' },
+    { keys: ['dsa', 'array', 'linked list'], text: 'Arrays = O(1) access, O(n) insert.\nLinked Lists = O(n) access, O(1) insert at head.\n\nRule of thumb: reading a lot? Array. Inserting/deleting a lot? Linked list. 📊' },
+    { keys: ['fourier', 'signal'], text: 'Fourier transform = breaking a song into individual notes. 🎵 Any signal is just a mix of sine waves — FT tells you which frequencies and how strong. Start with the intuition, then the integrals.' },
+    { keys: ['exam', 'gate', 'test'], text: 'GATE strategy: 🎯\n1️⃣ PYQs > everything (last 10 yrs, 3x)\n2️⃣ One mock/week now → daily in last month\n3️⃣ Maintain an error notebook\n\nYour 94 percentile says you\'re on track. Keep grinding!' },
+    { keys: ['python', 'loop'], text: 'Pythonic loops:\n\nfor i, val in enumerate(items) — index + value\nfor a, b in zip(l1, l2) — parallel lists\n[x*2 for x in nums if x > 0] — comprehensions\n\nWrite less, do more. 🐍' },
+    { keys: ['hello', 'hi', 'hey', 'yo'], text: 'Yo! 👋 Ready to level up? Ask me about recursion, pointers, DSA, signals, GATE prep… anything. Your streak is 🔥 btw.' }
+  ];
+  const FALLBACK = [
+    'Great question! 🤔 Break it into smaller pieces — what\'s the ONE part confusing you most? Describe it and we\'ll crack it together.',
+    'Interesting! Here\'s my 3-step debug method:\n1️⃣ Explain the problem out loud (rubber duck 🦆)\n2️⃣ Isolate the smallest failing case\n3️⃣ Check assumptions with print statements\n\nWhat have you tried so far?',
+    'Love the curiosity! ⚡ Pro tip: the best engineers Google smart. Try searching "your topic + intuition" — then come back and I\'ll fill the gaps.'
+  ];
+  let fbIndex = 0;
+
+  function addMsg(text, who) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + who;
+    div.textContent = text;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+    return div;
+  }
+
+  function botReply(userText) {
+    // typing indicator
+    const typing = document.createElement('div');
+    typing.className = 'msg bot typing';
+    typing.innerHTML = '<i></i><i></i><i></i>';
+    log.appendChild(typing);
+    log.scrollTop = log.scrollHeight;
+
+    const lower = userText.toLowerCase();
+    const hit = REPLIES.find(r => r.keys.some(k => lower.includes(k)));
+    const text = hit ? hit.text : FALLBACK[fbIndex++ % FALLBACK.length];
+
+    setTimeout(() => {
+      typing.remove();
+      addMsg(text, 'bot');
+    }, 900 + Math.random() * 700);
+  }
+
+  function send() {
+    const text = input.value.trim();
+    if (!text) return;
+    addMsg(text, 'user');
+    input.value = '';
+    botReply(text);
+  }
+  sendBtn.addEventListener('click', send);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
+})();
+
+/* ---------- BONUS: fake "download" feedback on note cards ---------- */
+document.querySelectorAll('.dl-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> Saved!';
+    setTimeout(() => { btn.innerHTML = original; }, 1800);
+  });
+});
+</script>
+</body>
+</html>

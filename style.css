@@ -1,0 +1,524 @@
+/* ================================================================
+   ENGIVERSE — style.css
+   🎨 THEME TOKENS — tweak all colors here
+   ================================================================ */
+:root{
+  --bg-deep:      #0a0a0f;   /* page background */
+  --bg-panel:     #12121c;   /* card base */
+  --glass:        rgba(255,255,255,0.04);
+  --glass-strong: rgba(255,255,255,0.08);
+  --stroke:       rgba(255,255,255,0.10);
+
+  --neon-purple:  #a855f7;
+  --neon-cyan:    #22d3ee;
+  --neon-green:   #4ade80;
+  --neon-pink:    #f472b6;
+  --neon-amber:   #fbbf24;
+
+  --txt-hi:  #f4f4f7;
+  --txt-mid: #9ca0b0;
+  --txt-low: #5c6070;
+
+  --font-main: 'Space Grotesk', sans-serif;
+  --font-code: 'JetBrains Mono', monospace;
+
+  --radius: 20px;
+  --ease-out: cubic-bezier(.22,1,.36,1);
+  --ease-spring: cubic-bezier(.34,1.56,.64,1);
+}
+
+/* ================================================================
+   BASE
+   ================================================================ */
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg-deep);
+  color:var(--txt-hi);
+  font-family:var(--font-main);
+  overflow-x:hidden;
+  min-height:100vh;
+}
+::selection{background:var(--neon-purple);color:#fff}
+
+/* custom scrollbar */
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:var(--bg-deep)}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--neon-purple),var(--neon-cyan));border-radius:99px}
+
+/* ================================================================
+   🌌 ANIMATED BACKGROUND — orbs + grid + particles(canvas)
+   ================================================================ */
+.bg-scene{position:fixed;inset:0;z-index:-2;overflow:hidden}
+.orb{
+  position:absolute;border-radius:50%;
+  filter:blur(110px);opacity:.35;
+  animation:orbFloat 22s ease-in-out infinite alternate;
+}
+.orb-1{width:520px;height:520px;background:var(--neon-purple);top:-140px;left:-120px}
+.orb-2{width:460px;height:460px;background:var(--neon-cyan);bottom:-160px;right:-100px;animation-delay:-7s;animation-duration:26s}
+.orb-3{width:380px;height:380px;background:var(--neon-pink);top:38%;left:55%;opacity:.18;animation-delay:-14s;animation-duration:30s}
+@keyframes orbFloat{
+  0%  {transform:translate(0,0) scale(1)}
+  50% {transform:translate(90px,60px) scale(1.15)}
+  100%{transform:translate(-70px,-40px) scale(.92)}
+}
+/* cyber grid floor */
+.bg-grid{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(168,85,247,.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(34,211,238,.07) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 90% 70% at 50% 40%,black 30%,transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse 90% 70% at 50% 40%,black 30%,transparent 75%);
+  animation:gridDrift 18s linear infinite;
+}
+@keyframes gridDrift{to{background-position:56px 56px,56px 56px}}
+#particles{position:fixed;inset:0;z-index:-1;pointer-events:none}
+
+/* ================================================================
+   ✨ ENTRANCE ANIMATIONS (staggered on load + on scroll)
+   ================================================================ */
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .8s var(--ease-out),transform .8s var(--ease-out)}
+.reveal.in{opacity:1;transform:none}
+/* hero children stagger via CSS delays */
+.hero .stagger{opacity:0;animation:riseIn .9s var(--ease-out) forwards}
+@keyframes riseIn{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+.d1{animation-delay:.15s}.d2{animation-delay:.3s}.d3{animation-delay:.45s}
+.d4{animation-delay:.6s}.d5{animation-delay:.75s}.d6{animation-delay:.9s}
+
+/* ================================================================
+   🧭 NAVBAR
+   ================================================================ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 5vw;
+  background:rgba(10,10,15,.55);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--stroke);
+  animation:navDrop .8s var(--ease-out) both;
+}
+@keyframes navDrop{from{transform:translateY(-100%)}to{transform:none}}
+.logo{font-weight:700;font-size:1.3rem;letter-spacing:1px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.logo i{
+  background:linear-gradient(135deg,var(--neon-purple),var(--neon-cyan));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:spinPulse 6s ease-in-out infinite;
+}
+@keyframes spinPulse{0%,100%{transform:rotate(0)}50%{transform:rotate(180deg) scale(1.15)}}
+.logo span{background:linear-gradient(90deg,var(--neon-purple),var(--neon-cyan),var(--neon-green),var(--neon-purple));background-size:300%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:hueSlide 6s linear infinite}
+@keyframes hueSlide{to{background-position:300% 0}}
+.nav-links{display:flex;gap:6px;list-style:none}
+.nav-links a{
+  color:var(--txt-mid);text-decoration:none;font-size:.92rem;font-weight:500;
+  padding:8px 16px;border-radius:99px;position:relative;
+  transition:color .3s,background .3s,box-shadow .3s;
+}
+.nav-links a:hover{color:#fff;background:var(--glass-strong);box-shadow:0 0 18px rgba(168,85,247,.35)}
+/* streak pill in navbar */
+.streak-pill{
+  display:flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,rgba(251,191,36,.14),rgba(244,114,182,.14));
+  border:1px solid rgba(251,191,36,.4);
+  padding:8px 16px;border-radius:99px;font-weight:600;font-size:.9rem;
+  cursor:pointer;transition:transform .3s var(--ease-spring),box-shadow .3s;
+}
+.streak-pill:hover{transform:scale(1.08);box-shadow:0 0 24px rgba(251,191,36,.45)}
+.streak-pill .fa-fire{color:var(--neon-amber);animation:flameWiggle 1.2s ease-in-out infinite}
+@keyframes flameWiggle{0%,100%{transform:scale(1) rotate(-4deg)}50%{transform:scale(1.25) rotate(5deg)}}
+
+/* ================================================================
+   🚀 HERO
+   ================================================================ */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;padding:140px 5vw 80px;position:relative;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid rgba(74,222,128,.4);color:var(--neon-green);
+  background:rgba(74,222,128,.08);
+  padding:8px 18px;border-radius:99px;font-size:.85rem;font-weight:500;letter-spacing:1px;
+}
+.hero-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--neon-green);animation:blink 1.6s infinite}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 10px var(--neon-green)}50%{opacity:.25}}
+.hero h1{
+  font-size:clamp(2.4rem,6.5vw,5rem);font-weight:700;line-height:1.08;margin:26px 0 10px;letter-spacing:-1px;
+}
+.hero h1 .grad{
+  background:linear-gradient(90deg,var(--neon-purple),var(--neon-cyan) 50%,var(--neon-green));
+  background-size:200%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:hueSlide 5s linear infinite;
+  filter:drop-shadow(0 0 26px rgba(168,85,247,.45));
+}
+.hero .sub{color:var(--txt-mid);max-width:620px;font-size:1.1rem;line-height:1.7;margin-top:8px}
+/* typing line */
+.type-line{font-family:var(--font-code);color:var(--neon-cyan);margin-top:22px;font-size:1rem;min-height:1.4em}
+.type-line::after{content:'▌';animation:blink 1s infinite}
+.hero-cta{display:flex;gap:18px;margin-top:38px;flex-wrap:wrap;justify-content:center}
+/* scroll hint */
+.scroll-hint{position:absolute;bottom:28px;color:var(--txt-low);font-size:1.4rem;animation:bounceDown 2s infinite}
+@keyframes bounceDown{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(10px);opacity:1}}
+
+/* ================================================================
+   🔘 BUTTONS (with JS ripple)
+   ================================================================ */
+.btn{
+  position:relative;overflow:hidden;border:none;cursor:pointer;
+  font-family:var(--font-main);font-weight:600;font-size:1rem;
+  padding:15px 34px;border-radius:14px;color:#fff;
+  transition:transform .35s var(--ease-spring),box-shadow .35s;
+  display:inline-flex;align-items:center;gap:10px;
+}
+.btn:active{transform:scale(.94)}
+.btn-primary{
+  background:linear-gradient(135deg,var(--neon-purple),#6d28d9);
+  box-shadow:0 8px 30px rgba(168,85,247,.4);
+}
+.btn-primary:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 14px 44px rgba(168,85,247,.65)}
+.btn-ghost{
+  background:var(--glass);border:1px solid var(--stroke);
+  backdrop-filter:blur(10px);
+}
+.btn-ghost:hover{transform:translateY(-4px);border-color:var(--neon-cyan);box-shadow:0 0 28px rgba(34,211,238,.35);color:var(--neon-cyan)}
+/* ripple element injected by JS */
+.ripple{
+  position:absolute;border-radius:50%;background:rgba(255,255,255,.5);
+  transform:scale(0);animation:rippleAnim .65s ease-out forwards;pointer-events:none;
+}
+@keyframes rippleAnim{to{transform:scale(4);opacity:0}}
+
+/* ================================================================
+   📐 SECTION SHELL
+   ================================================================ */
+section{padding:110px 5vw;max-width:1280px;margin:0 auto}
+.sec-tag{
+  font-family:var(--font-code);font-size:.85rem;letter-spacing:3px;text-transform:uppercase;
+  color:var(--neon-cyan);display:flex;align-items:center;gap:12px;
+}
+.sec-tag::before{content:'';width:34px;height:2px;background:linear-gradient(90deg,var(--neon-purple),var(--neon-cyan))}
+.sec-title{font-size:clamp(1.8rem,4vw,2.7rem);font-weight:700;margin:14px 0 8px;letter-spacing:-.5px}
+.sec-sub{color:var(--txt-mid);max-width:560px;line-height:1.6;margin-bottom:48px}
+
+/* ================================================================
+   🗄️ NOTES VAULT — glass cards grid
+   ================================================================ */
+.vault-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px}
+.note-card{
+  position:relative;background:var(--glass);border:1px solid var(--stroke);
+  border-radius:var(--radius);padding:28px;overflow:hidden;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  transition:transform .45s var(--ease-spring),box-shadow .45s,border-color .45s;
+  cursor:pointer;
+}
+/* neon sweep line on top of each card */
+.note-card::before{
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:2px;
+  background:linear-gradient(90deg,transparent,var(--card-glow,var(--neon-purple)),transparent);
+  transition:left .6s ease;
+}
+.note-card:hover::before{left:100%}
+.note-card:hover{
+  transform:translateY(-12px) scale(1.03);
+  border-color:var(--card-glow,var(--neon-purple));
+  box-shadow:0 22px 50px -12px rgba(0,0,0,.8),0 0 34px -6px var(--card-glow,var(--neon-purple));
+}
+.note-icon{
+  width:58px;height:58px;border-radius:16px;display:grid;place-items:center;
+  font-size:1.5rem;margin-bottom:20px;color:var(--card-glow,var(--neon-purple));
+  background:color-mix(in srgb,var(--card-glow,var(--neon-purple)) 12%,transparent);
+  border:1px solid color-mix(in srgb,var(--card-glow,var(--neon-purple)) 35%,transparent);
+  transition:transform .45s var(--ease-spring);
+}
+.note-card:hover .note-icon{transform:rotate(-8deg) scale(1.15)}
+.note-card h3{font-size:1.15rem;margin-bottom:6px}
+.note-card p{color:var(--txt-mid);font-size:.88rem;line-height:1.55}
+.note-meta{display:flex;justify-content:space-between;align-items:center;margin-top:22px;font-size:.8rem;color:var(--txt-low)}
+.dl-btn{
+  background:none;border:1px solid var(--stroke);color:var(--txt-mid);
+  padding:7px 14px;border-radius:9px;cursor:pointer;font-family:var(--font-main);font-size:.8rem;font-weight:600;
+  transition:all .3s;position:relative;overflow:hidden;
+}
+.dl-btn:hover{background:var(--card-glow,var(--neon-purple));border-color:transparent;color:#0a0a0f;box-shadow:0 0 18px var(--card-glow,var(--neon-purple))}
+
+/* ================================================================
+   🏆 NATIONAL ARENA — rank dashboard + leaderboard
+   ================================================================ */
+.arena-wrap{display:grid;grid-template-columns:1.1fr 1fr;gap:28px}
+@media (max-width:900px){.arena-wrap{grid-template-columns:1fr}}
+.panel{
+  background:var(--glass);border:1px solid var(--stroke);border-radius:var(--radius);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  padding:32px;transition:transform .4s var(--ease-out),box-shadow .4s;
+}
+.panel:hover{transform:translateY(-6px);box-shadow:0 18px 48px -14px rgba(0,0,0,.85)}
+.panel h3{font-size:1.15rem;display:flex;align-items:center;gap:10px;margin-bottom:26px}
+.panel h3 i{color:var(--neon-purple)}
+
+/* circular percentile ring (SVG animated by JS) */
+.rank-flex{display:flex;align-items:center;gap:34px;flex-wrap:wrap}
+.ring-box{position:relative;width:170px;height:170px;flex-shrink:0}
+.ring-box svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(255,255,255,.07);stroke-width:11}
+.ring-val{
+  fill:none;stroke:url(#ringGrad);stroke-width:11;stroke-linecap:round;
+  filter:drop-shadow(0 0 8px rgba(34,211,238,.7));
+  transition:stroke-dashoffset 2s var(--ease-out);
+}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-center strong{font-size:2rem;font-weight:700;color:var(--neon-cyan)}
+.ring-center span{font-size:.72rem;color:var(--txt-low);letter-spacing:2px;text-transform:uppercase}
+/* stat bars */
+.stat{margin-bottom:18px}
+.stat .lbl{display:flex;justify-content:space-between;font-size:.85rem;color:var(--txt-mid);margin-bottom:8px}
+.stat .lbl b{color:var(--txt-hi)}
+.bar{height:9px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden}
+.bar-fill{
+  height:100%;width:0;border-radius:99px;position:relative;
+  background:linear-gradient(90deg,var(--bar-c1,var(--neon-purple)),var(--bar-c2,var(--neon-cyan)));
+  transition:width 1.8s var(--ease-out);
+  box-shadow:0 0 12px var(--bar-c2,var(--neon-cyan));
+}
+/* shimmer running along filled bars */
+.bar-fill::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);
+  transform:translateX(-100%);animation:shimmer 2.4s infinite 2s;
+}
+@keyframes shimmer{to{transform:translateX(100%)}}
+.rank-line{margin-top:10px;font-size:.9rem;color:var(--txt-mid)}
+.rank-line b{color:var(--neon-green)}
+
+/* leaderboard rows */
+.lb-row{
+  display:flex;align-items:center;gap:16px;padding:13px 16px;border-radius:14px;
+  transition:background .3s,transform .3s;
+}
+.lb-row:hover{background:var(--glass-strong);transform:translateX(8px)}
+.lb-rank{font-family:var(--font-code);font-weight:700;width:34px;color:var(--txt-low)}
+.lb-row:nth-child(2) .lb-rank{color:var(--neon-amber)}
+.lb-row:nth-child(3) .lb-rank{color:#cbd5e1}
+.lb-row:nth-child(4) .lb-rank{color:#d97706}
+.lb-avatar{
+  width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.9rem;
+  background:linear-gradient(135deg,var(--av-c1,#a855f7),var(--av-c2,#22d3ee));
+}
+.lb-name{flex:1}
+.lb-name b{display:block;font-size:.95rem}
+.lb-name span{font-size:.75rem;color:var(--txt-low)}
+.lb-xp{font-family:var(--font-code);color:var(--neon-green);font-size:.9rem}
+/* highlighted "you" row */
+.lb-you{
+  border:1px dashed rgba(168,85,247,.55);
+  background:rgba(168,85,247,.08);
+  animation:youPulse 2.6s ease-in-out infinite;
+}
+@keyframes youPulse{0%,100%{box-shadow:0 0 0 rgba(168,85,247,0)}50%{box-shadow:0 0 22px rgba(168,85,247,.35)}}
+
+/* ================================================================
+   💻 CODE LAB — fake IDE
+   ================================================================ */
+.ide{
+  border-radius:var(--radius);overflow:hidden;border:1px solid var(--stroke);
+  background:#0d0d15;box-shadow:0 30px 70px -20px rgba(0,0,0,.9);
+  transition:box-shadow .4s;
+}
+.ide:hover{box-shadow:0 30px 80px -18px rgba(0,0,0,.95),0 0 44px -12px rgba(34,211,238,.35)}
+.ide-bar{
+  display:flex;align-items:center;gap:12px;padding:13px 18px;
+  background:rgba(255,255,255,.03);border-bottom:1px solid var(--stroke);
+}
+.ide-dot{width:12px;height:12px;border-radius:50%}
+.ide-dot.r{background:#ff5f57}.ide-dot.y{background:#febc2e}.ide-dot.g{background:#28c840}
+.ide-tab{
+  margin-left:14px;font-family:var(--font-code);font-size:.8rem;color:var(--txt-mid);
+  background:var(--glass);padding:6px 16px;border-radius:8px;border:1px solid var(--stroke);
+}
+.ide-tab i{color:var(--neon-amber);margin-right:8px}
+.run-btn{
+  margin-left:auto;background:linear-gradient(135deg,var(--neon-green),#16a34a);
+  color:#052e16;border:none;font-weight:700;font-family:var(--font-main);
+  padding:8px 22px;border-radius:9px;cursor:pointer;font-size:.85rem;
+  display:flex;align-items:center;gap:8px;position:relative;overflow:hidden;
+  transition:transform .3s var(--ease-spring),box-shadow .3s;
+}
+.run-btn:hover{transform:scale(1.07);box-shadow:0 0 24px rgba(74,222,128,.6)}
+.run-btn:active{transform:scale(.93)}
+.ide-body{display:grid;grid-template-columns:52px 1fr;font-family:var(--font-code);font-size:.88rem;line-height:1.85}
+.ide-lines{padding:22px 0;text-align:right;color:var(--txt-low);background:rgba(255,255,255,.015);user-select:none;padding-right:14px}
+.ide-code{padding:22px;overflow-x:auto;white-space:pre}
+/* syntax colors */
+.tk-kw{color:#c084fc}.tk-fn{color:#22d3ee}.tk-str{color:#4ade80}.tk-cm{color:#565b6e;font-style:italic}.tk-num{color:#fbbf24}.tk-var{color:#e2e8f0}
+/* console */
+.console{
+  border-top:1px solid var(--stroke);background:#08080d;padding:18px 22px;
+  font-family:var(--font-code);font-size:.85rem;min-height:120px;
+}
+.console-head{color:var(--txt-low);font-size:.72rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.console-head i{color:var(--neon-green)}
+.console-line{opacity:0;transform:translateX(-12px);transition:opacity .4s,transform .4s;margin-bottom:5px}
+.console-line.show{opacity:1;transform:none}
+.console-line.ok{color:var(--neon-green)}
+.console-line.info{color:var(--txt-mid)}
+.console-line.accent{color:var(--neon-cyan)}
+
+/* ================================================================
+   🔥 SNAP STREAK
+   ================================================================ */
+.streak-panel{
+  position:relative;text-align:center;padding:64px 32px;overflow:hidden;
+  background:linear-gradient(160deg,rgba(251,191,36,.07),rgba(244,114,182,.07),rgba(168,85,247,.07));
+  border:1px solid rgba(251,191,36,.25);border-radius:26px;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+.big-fire{
+  font-size:4.6rem;display:inline-block;
+  filter:drop-shadow(0 0 26px rgba(251,146,60,.8));
+  animation:fireBreathe 1.6s ease-in-out infinite;
+}
+@keyframes fireBreathe{
+  0%,100%{transform:scale(1) rotate(-3deg)}
+  50%{transform:scale(1.18) rotate(4deg);filter:drop-shadow(0 0 44px rgba(251,146,60,1))}
+}
+.streak-count{
+  font-size:clamp(2.6rem,6vw,4rem);font-weight:700;margin:10px 0 4px;
+  background:linear-gradient(90deg,var(--neon-amber),#fb923c,var(--neon-pink));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.streak-panel p{color:var(--txt-mid);max-width:440px;margin:0 auto 30px;line-height:1.6}
+.streak-days{display:flex;gap:10px;justify-content:center;margin-bottom:36px;flex-wrap:wrap}
+.day-chip{
+  width:46px;height:46px;border-radius:14px;display:grid;place-items:center;
+  border:1px solid var(--stroke);color:var(--txt-low);font-size:.78rem;font-weight:600;
+  transition:transform .3s var(--ease-spring);
+}
+.day-chip:hover{transform:scale(1.15)}
+.day-chip.lit{
+  border-color:rgba(251,191,36,.6);color:var(--neon-amber);
+  background:rgba(251,191,36,.1);box-shadow:0 0 14px rgba(251,191,36,.3);
+}
+.btn-snap{
+  background:linear-gradient(135deg,var(--neon-amber),#fb923c,var(--neon-pink));
+  color:#1c0a00;box-shadow:0 10px 34px rgba(251,146,60,.45);font-size:1.05rem;
+}
+.btn-snap:hover{transform:translateY(-4px) scale(1.05);box-shadow:0 16px 48px rgba(251,146,60,.7)}
+/* fire particles that burst out on snap send (JS spawned) */
+.fire-bit{position:absolute;pointer-events:none;font-size:1.4rem;animation:fireFly 1.15s ease-out forwards}
+@keyframes fireFly{
+  0%{transform:translate(0,0) scale(.6) rotate(0);opacity:1}
+  100%{transform:translate(var(--fx),var(--fy)) scale(1.5) rotate(var(--fr));opacity:0}
+}
+/* "sent" toast */
+.toast{
+  position:fixed;bottom:110px;left:50%;transform:translate(-50%,20px);
+  background:rgba(18,18,28,.9);border:1px solid rgba(74,222,128,.5);
+  color:var(--neon-green);padding:14px 28px;border-radius:14px;font-weight:600;
+  backdrop-filter:blur(14px);opacity:0;pointer-events:none;z-index:300;
+  transition:opacity .4s,transform .4s var(--ease-spring);
+  display:flex;align-items:center;gap:10px;box-shadow:0 0 34px rgba(74,222,128,.25);
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ================================================================
+   🤖 AI ASSISTANT WIDGET
+   ================================================================ */
+.ai-fab{
+  position:fixed;bottom:28px;right:28px;z-index:200;
+  width:66px;height:66px;border-radius:50%;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--neon-purple),var(--neon-cyan));
+  color:#fff;font-size:1.6rem;display:grid;place-items:center;
+  box-shadow:0 10px 34px rgba(168,85,247,.55);
+  animation:fabFloat 3s ease-in-out infinite;
+  transition:transform .35s var(--ease-spring);
+}
+.ai-fab:hover{transform:scale(1.14) rotate(8deg)}
+@keyframes fabFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+/* pulsing halo rings */
+.ai-fab::before,.ai-fab::after{
+  content:'';position:absolute;inset:0;border-radius:50%;
+  border:2px solid rgba(34,211,238,.55);animation:halo 2.4s ease-out infinite;
+}
+.ai-fab::after{animation-delay:1.2s}
+@keyframes halo{from{transform:scale(1);opacity:1}to{transform:scale(1.9);opacity:0}}
+.ai-fab i{animation:botNod 4s ease-in-out infinite}
+@keyframes botNod{0%,100%{transform:rotate(0)}20%{transform:rotate(-12deg)}40%{transform:rotate(10deg)}60%{transform:rotate(0)}}
+
+.chat-box{
+  position:fixed;bottom:110px;right:28px;z-index:200;
+  width:min(370px,calc(100vw - 40px));height:480px;
+  background:rgba(16,16,26,.82);border:1px solid var(--stroke);border-radius:22px;
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 30px 80px -14px rgba(0,0,0,.9),0 0 40px -10px rgba(168,85,247,.35);
+  transform-origin:bottom right;
+  transform:scale(.4);opacity:0;pointer-events:none;
+  transition:transform .45s var(--ease-spring),opacity .3s;
+}
+.chat-box.open{transform:scale(1);opacity:1;pointer-events:auto}
+.chat-head{
+  padding:16px 20px;display:flex;align-items:center;gap:12px;
+  background:linear-gradient(135deg,rgba(168,85,247,.22),rgba(34,211,238,.22));
+  border-bottom:1px solid var(--stroke);
+}
+.chat-head .bot-av{
+  width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--neon-purple),var(--neon-cyan));font-size:1.1rem;
+}
+.chat-head b{display:block;font-size:.98rem}
+.chat-head small{color:var(--neon-green);font-size:.72rem;display:flex;align-items:center;gap:6px}
+.chat-head small::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--neon-green);animation:blink 1.6s infinite}
+.chat-close{margin-left:auto;background:none;border:none;color:var(--txt-mid);font-size:1.1rem;cursor:pointer;transition:color .3s,transform .3s}
+.chat-close:hover{color:#fff;transform:rotate(90deg)}
+.chat-log{flex:1;padding:18px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.msg{
+  max-width:82%;padding:11px 15px;border-radius:16px;font-size:.88rem;line-height:1.55;
+  animation:msgPop .4s var(--ease-spring) both;white-space:pre-wrap;
+}
+@keyframes msgPop{from{opacity:0;transform:translateY(14px) scale(.9)}to{opacity:1;transform:none}}
+.msg.bot{background:var(--glass-strong);border:1px solid var(--stroke);border-bottom-left-radius:4px;align-self:flex-start}
+.msg.user{background:linear-gradient(135deg,var(--neon-purple),#7c3aed);border-bottom-right-radius:4px;align-self:flex-end}
+.msg code{font-family:var(--font-code);background:rgba(0,0,0,.4);padding:2px 6px;border-radius:6px;color:var(--neon-green);font-size:.8rem}
+/* typing dots */
+.typing{display:flex;gap:5px;padding:14px 16px}
+.typing i{width:8px;height:8px;border-radius:50%;background:var(--neon-cyan);animation:tDot 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes tDot{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-6px);opacity:1}}
+.chat-input{display:flex;gap:10px;padding:14px;border-top:1px solid var(--stroke)}
+.chat-input input{
+  flex:1;background:var(--glass);border:1px solid var(--stroke);border-radius:12px;
+  padding:12px 16px;color:var(--txt-hi);font-family:var(--font-main);font-size:.9rem;outline:none;
+  transition:border-color .3s,box-shadow .3s;
+}
+.chat-input input:focus{border-color:var(--neon-cyan);box-shadow:0 0 16px rgba(34,211,238,.3)}
+.chat-send{
+  width:46px;border:none;border-radius:12px;cursor:pointer;color:#fff;
+  background:linear-gradient(135deg,var(--neon-cyan),#0891b2);font-size:1rem;
+  transition:transform .3s var(--ease-spring),box-shadow .3s;
+}
+.chat-send:hover{transform:scale(1.1);box-shadow:0 0 18px rgba(34,211,238,.5)}
+
+/* ================================================================
+   FOOTER
+   ================================================================ */
+footer{
+  text-align:center;padding:44px 5vw;color:var(--txt-low);font-size:.85rem;
+  border-top:1px solid var(--stroke);margin-top:40px;
+}
+footer b{background:linear-gradient(90deg,var(--neon-purple),var(--neon-cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* ================================================================
+   📱 RESPONSIVE
+   ================================================================ */
+@media (max-width:760px){
+  .nav-links{display:none}
+  section{padding:80px 6vw}
+  .rank-flex{justify-content:center}
+  .ide-body{font-size:.78rem}
+}
+/* respect reduced-motion users */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
